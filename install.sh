@@ -65,9 +65,21 @@ install_base() {
 }
 #REMOVE WHEN BE PUBLIC!!
 init_private_repo() {
-  echo -ne "${yellow}""Enter the bearer key: ""${plain}"
-  read -r key
+
+    if [[ "$1" == "--key" && -n "$2" ]]; then
+        key="$2"
+        echo "Using provided bearer key."
+    else
+        # Если нет — спрашиваем вручную
+        read -r -p "${yellow}Enter the bearer key: ${plain}" key </dev/tty
+    fi
+
+    if [[ -z "$key" ]]; then
+        echo "${red}Fatal error:${plain} Bearer key is empty."
+        exit 1
+    fi
 }
+
 
 #CHANGE WHEN BE PUBLIC!!
 install_app() {
@@ -143,6 +155,6 @@ install_app() {
 
 
 install_base
-init_private_repo
+init_private_repo "$@"
 install_app
 
