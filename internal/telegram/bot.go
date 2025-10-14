@@ -1,11 +1,14 @@
 package telegram
 
 import (
+	"context"
 	"gopkg.in/telebot.v4"
 	"log"
-	"main.go/db"
-	"main.go/gokick"
+	"main.go/internal/db"
+	"main.go/pkg/gokick"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 )
 
@@ -14,6 +17,9 @@ type Bot struct {
 }
 
 func Create(api gokick.ApiKick, db *db.DB) {
+	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer cancel()
+
 	preference := telebot.Settings{
 		Token:  os.Getenv("TELEGRAM_BOT_API"),
 		Poller: &telebot.LongPoller{Timeout: 10 * time.Second},
@@ -30,5 +36,13 @@ func Create(api gokick.ApiKick, db *db.DB) {
 	b.Handle("/add", onAdd(db, api))
 	b.Handle("/remove", onRemove(db, api))
 	b.Handle("/list", onList(db))
-	b.Start()
+	go func() {
+		b.Start()
+	}()
+	<-ctx.Done()
+
+	log.Println("Shutting down...")
+	b.Stop()
+
+	log.Println("Bot successfully stopped")
 }

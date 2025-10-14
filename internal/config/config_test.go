@@ -7,12 +7,12 @@ import (
 )
 
 func TestGetDataPath(t *testing.T) {
-	println(GetDataPath(".env"))
+	println(GetDataPath("qwerty"))
 
 }
 
 func TestInitData(t *testing.T) {
 	InitData()
-	a := os.Getenv("TEST")
+	a := os.Getenv("KICK_CLIENT_ID")
 	fmt.Println(a)
 }

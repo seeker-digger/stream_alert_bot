@@ -3,7 +3,7 @@ package db
 import (
 	bolt "go.etcd.io/bbolt"
 	"log"
-	"main.go/config"
+	"main.go/internal/config"
 	"sync"
 )
 

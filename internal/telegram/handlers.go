@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"gopkg.in/telebot.v4"
-	db "main.go/db"
-	"main.go/gokick"
+	db2 "main.go/internal/db"
+	"main.go/pkg/gokick"
 	"slices"
 	"strconv"
 	"strings"
@@ -18,12 +18,12 @@ type notification struct {
 	startsIn time.Time
 }
 
-func onStart(b *db.DB) telebot.HandlerFunc {
+func onStart(b *db2.DB) telebot.HandlerFunc {
 	return func(c telebot.Context) error {
 		id := c.Sender().ID
-		u := db.User{}
+		u := db2.User{}
 
-		if _, err := b.GetUser(id); errors.Is(err, db.ErrKeyNotExist) {
+		if _, err := b.GetUser(id); errors.Is(err, db2.ErrKeyNotExist) {
 			err = b.SetUser(id, u)
 			if err != nil {
 				return err
@@ -36,7 +36,7 @@ func onStart(b *db.DB) telebot.HandlerFunc {
 	}
 }
 
-func onAdd(b *db.DB, kick gokick.ApiKick) telebot.HandlerFunc {
+func onAdd(b *db2.DB, kick gokick.ApiKick) telebot.HandlerFunc {
 	return func(c telebot.Context) error {
 		tags := c.Args()
 		if len(tags) == 0 {
@@ -96,7 +96,7 @@ func onAdd(b *db.DB, kick gokick.ApiKick) telebot.HandlerFunc {
 	}
 }
 
-func onRemove(b *db.DB, kick gokick.ApiKick) telebot.HandlerFunc {
+func onRemove(b *db2.DB, kick gokick.ApiKick) telebot.HandlerFunc {
 	return func(c telebot.Context) error {
 		tags := c.Args()
 		if len(tags) == 0 {
@@ -162,7 +162,7 @@ func onRemove(b *db.DB, kick gokick.ApiKick) telebot.HandlerFunc {
 	}
 }
 
-func onList(b *db.DB) telebot.HandlerFunc {
+func onList(b *db2.DB) telebot.HandlerFunc {
 	return func(c telebot.Context) error {
 		id := c.Sender().ID
 		u, err := b.GetUser(id)

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"main.go/config"
+	"main.go/internal/config"
 	"net/http"
 	"net/url"
 	"os"
@@ -39,8 +39,8 @@ type appSecrets struct {
 }
 
 func GetAuthToken() (ApiKick, error) {
-	var clientid = os.Getenv("CLIENT_ID")
-	var clientsecret = os.Getenv("CLIENT_SECRET")
+	var clientid = os.Getenv("KICK_CLIENT_ID")
+	var clientsecret = os.Getenv("KICK_CLIENT_SECRET")
 
 	var authToken authToken
 

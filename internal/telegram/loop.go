@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"gopkg.in/telebot.v4"
 	"log"
-	"main.go/db"
-	"main.go/gokick"
+	"main.go/internal/db"
+	"main.go/pkg/gokick"
 	"time"
 )
 

@@ -1,0 +1,11 @@
+[Unit]
+Description=Telegram bot for notification about started streams
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/stream-alert-bot/bot
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
