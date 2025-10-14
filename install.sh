@@ -121,5 +121,7 @@ install_app() {
     echo -e "${green}""Stream Alert Bot ${tag_version} installed successfully!""${plain}"
 }
 
-
+install_base
+init_private_repo
+install_app
 
