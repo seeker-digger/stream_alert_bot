@@ -7,8 +7,8 @@ Type=simple
 WorkingDirectory=/usr/local/stream-alert-bot
 ExecStart=/usr/local/stream-alert-bot/bot
 Restart=on-failure
-StandardOutput=append:/var/log/stream-alert-bot.log
-StandardError=append:/var/log/stream-alert-bot.log
+StandardOutput=journal
+StandardError=journal
 RestartSec=3s
 
 
