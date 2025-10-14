@@ -65,18 +65,13 @@ install_base() {
 }
 #REMOVE WHEN BE PUBLIC!!
 init_private_repo() {
-  read -r -p "${yellow}""Enter the bearer key: ""${plain}" key
+  read -r -p -e "${yellow}""Enter the bearer key: ""${plain}" key
 }
 
 #CHANGE WHEN BE PUBLIC!!
 install_app() {
     cd /usr/local || exit 1
-  
-    tag_tarball=$(curl -Ls -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${key}" "https://api.github.com/repos/seeker-digger/stream_alert_bot/releases/latest" | grep '"tar_ball":' | sed -E 's/.*"([^"]+)".*/\1/')
-    if [[ -z ${tag_tarball} ]]; then
-        echo "${red}""Fatal error: ""${plain}""Failed to get tar_ball url by bearer key"
-        exit 1
-    fi
+
     tag_version=$(curl -Ls -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${key}" "https://api.github.com/repos/seeker-digger/stream_alert_bot/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
     if [[ -z ${tag_version} ]]; then
         echo "${red}""Fatal error: ""${plain}""Failed to get version by bearer key"
@@ -92,6 +87,7 @@ install_app() {
         fi
         rm /usr/local/stream-alert-bot/bot -rf
     fi
+    cd /usr/local/stream-alert-bot/ || mkdir /usr/local/stream-alert-bot/
     cd /usr/local/stream-alert-bot/ || exit 1
     wget --header="Authorization: Bearer ${key}" --header="Accept: application/octet-stream" -O "bot" "https://api.github.com/repos/seeker-digger/stream_alert_bot/releases/assets/303749263"
     if [[ $? -ne 0 ]]; then

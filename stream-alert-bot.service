@@ -4,8 +4,12 @@ After=network.target
 
 [Service]
 Type=simple
+WorkingDirectory=/usr/local/stream-alert-bot
 ExecStart=/usr/local/stream-alert-bot/bot
 Restart=on-failure
+StandardOutput=journal
+StandardError=journal
+
 
 [Install]
 WantedBy=multi-user.target
