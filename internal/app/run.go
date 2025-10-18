@@ -11,7 +11,6 @@ import (
 )
 
 func Run() error {
-
 	if !(syscall.Geteuid() == 0) {
 		l.Log.Error("Root's rights required!")
 		return errors.New("root's rights required")

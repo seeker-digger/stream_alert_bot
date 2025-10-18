@@ -36,6 +36,7 @@ func Create(api gokick.ApiKick, db *db.DB) {
 	b.Handle("/add", onAdd(db, api))
 	b.Handle("/remove", onRemove(db, api))
 	b.Handle("/list", onList(db))
+
 	go func() {
 		b.Start()
 	}()
