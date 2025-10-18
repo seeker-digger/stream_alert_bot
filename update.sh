@@ -76,6 +76,8 @@ update_app() {
     release_json=$(curl -s -H "Accept: application/vnd.github+json" \
                         "https://api.github.com/repos/seeker-digger/stream_alert_bot/releases/latest")
 
+    echo $release_json
+
     if [[ -z "$release_json" ]]; then
         echo -e "${red}Fatal error:${plain} Failed to fetch release info from GitHub!"
         exit 1
@@ -83,24 +85,14 @@ update_app() {
 
     latest_version=$(echo "$release_json" | jq -r '.tag_name')
     asset_url=$(echo "$release_json" | jq -r '.assets[0].browser_download_url')
-
+    echo $latest_version
+    echo $asset_url
     if [[ -z "$latest_version" || -z "$asset_url" ]]; then
         echo -e "${red}Fatal error:${plain} Could not parse release info!"
         exit 1
     fi
 
-    # Determine current version
-    if [[ -x "$binary_path" ]]; then
-        current_version=$("$binary_path" --version 2>/dev/null | grep -oE '[0-9.]+')
-    fi
-
-    echo "Current version: ${current_version:-unknown}"
     echo "Latest version:  $latest_version"
-
-    if [[ "$current_version" == "$latest_version" ]]; then
-        echo -e "${green}Already up to date!${plain}"
-        exit 0
-    fi
 
     echo "Updating Stream Alert Bot to ${latest_version}..."
 
