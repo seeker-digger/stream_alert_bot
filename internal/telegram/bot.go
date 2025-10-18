@@ -3,8 +3,8 @@ package telegram
 import (
 	"context"
 	"gopkg.in/telebot.v4"
-	"log"
 	"main.go/internal/db"
+	l "main.go/internal/logger"
 	"main.go/pkg/gokick"
 	"os"
 	"os/signal"
@@ -27,11 +27,11 @@ func Create(api gokick.ApiKick, db *db.DB) {
 
 	b, err := telebot.NewBot(preference)
 	if err != nil {
-		log.Fatal(err)
+		l.Log.Fatal(err)
 	}
-	l := initLoop()
-	l.startAPILoop(db, api)
-	l.startMailingLoop(db, b)
+	loop := initLoop()
+	loop.startAPILoop(db, api)
+	loop.startMailingLoop(db, b)
 	b.Handle("/start", onStart(db))
 	b.Handle("/add", onAdd(db, api))
 	b.Handle("/remove", onRemove(db, api))
@@ -41,8 +41,8 @@ func Create(api gokick.ApiKick, db *db.DB) {
 	}()
 	<-ctx.Done()
 
-	log.Println("Shutting down...")
+	l.Log.Warn("Shutting down...")
 	b.Stop()
 
-	log.Println("Bot successfully stopped")
+	l.Log.Println("Bot successfully stopped")
 }

@@ -65,15 +65,15 @@ install_app() {
 
     # Get latest release (including pre-release)
     release_json=$(curl -s -H "Accept: application/vnd.github+json" \
-                        "https://api.github.com/repos/seeker-digger/stream_alert_bot/releases")
+                        "https://api.github.com/repos/seeker-digger/stream_alert_bot/releases/latest")
 
     if [[ -z "$release_json" ]]; then
         echo "${red}Fatal error:${plain} Failed to fetch releases from GitHub"
         exit 1
     fi
 
-    tag_version=$(echo "$release_json" | jq -r '.[0].tag_name')
-    asset_url=$(echo "$release_json" | jq -r '.[0].assets[] | select(.name=="stream_alert_bot-linux_amd64") | .browser_download_url')
+    tag_version=$(echo "$release_json" | jq -r '.tag_name')
+    asset_url=$(echo "$release_json" | jq -r '.assets[0].browser_download_url')
 
     if [[ -z "$tag_version" || -z "$asset_url" ]]; then
         echo "${red}Fatal error:${plain} Could not determine latest release or asset"

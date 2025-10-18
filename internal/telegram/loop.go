@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"gopkg.in/telebot.v4"
-	"log"
 	"main.go/internal/db"
+	l "main.go/internal/logger"
 	"main.go/pkg/gokick"
 	"time"
 )
@@ -27,34 +27,34 @@ func initLoop() Loop {
 	return Loop{targets: targets, onlSlug: onlSlug, toggle: false}
 }
 
-func (l *Loop) startAPILoop(b *db.DB, kick gokick.ApiKick) {
-	l.toggle = true
+func (loop *Loop) startAPILoop(b *db.DB, kick gokick.ApiKick) {
+	loop.toggle = true
 	go func() {
 		ticker := time.NewTicker(delay)
 		slugs, err := b.GetAllUniqueValues()
 		if err != nil {
-			log.Println("error getting slugs: ", err)
+			l.Log.Println("error getting slugs: ", err)
 		}
 		for {
 			select {
 			case <-needUpdate:
 				slugs, err = b.GetAllUniqueValues()
 				if err != nil {
-					log.Println("error getting slugs: ", err)
+					l.Log.Println("error getting slugs: ", err)
 				}
 			case <-ticker.C:
 				chunks := chunkSlice(slugs, 50)
 				for _, s := range chunks {
 					r, err := kick.GetChannel(s)
 					if err != nil {
-						log.Println("error getting channels: ", err.Error())
+						l.Log.Println("error getting channels: ", err.Error())
 					}
 					for _, i := range r.Data {
 						if i.Stream.IsLive == true {
-							if time.Since(time.Unix(l.targets[i.Slug], 0)) > 10*time.Minute {
-								l.onlSlug <- i
+							if time.Since(time.Unix(loop.targets[i.Slug], 0)) > 10*time.Minute {
+								loop.onlSlug <- i
 							}
-							l.targets[i.Slug] = time.Now().Unix()
+							loop.targets[i.Slug] = time.Now().Unix()
 						}
 					}
 				}
@@ -63,18 +63,18 @@ func (l *Loop) startAPILoop(b *db.DB, kick gokick.ApiKick) {
 	}()
 }
 
-func (l *Loop) pauseAPILoop() {
-	l.toggle = false
+func (loop *Loop) pauseAPILoop() {
+	loop.toggle = false
 }
 
-func (l *Loop) startMailingLoop(b *db.DB, bot *telebot.Bot) {
+func (loop *Loop) startMailingLoop(b *db.DB, bot *telebot.Bot) {
 	go func() {
 		for {
 			select {
-			case s := <-l.onlSlug:
+			case s := <-loop.onlSlug:
 				ids, err := b.GetAllIdsByValueKick(s.Slug)
 				if err != nil {
-					log.Println("error getting slugs: ", err)
+					l.Log.Println("error getting slugs: ", err)
 				}
 				for _, i := range ids {
 					text := fmt.Sprintf("*Канал*: [%s](kick.com\\/%s) запустил стрим\\!\n>%s", escapeMarkdownV2Text(s.Slug), s.Slug, escapeMarkdownV2Text(s.StreamTitle))
@@ -82,11 +82,11 @@ func (l *Loop) startMailingLoop(b *db.DB, bot *telebot.Bot) {
 					if errors.Is(err, telebot.ErrUserIsDeactivated) || errors.Is(err, telebot.ErrBlockedByUser) || errors.Is(err, telebot.ErrNotStartedByUser) {
 						err = b.RemoveUser(i)
 						if err != nil {
-							log.Println("error removing user: ", err)
+							l.Log.Println("error removing user: ", err)
 						}
 						continue
 					} else if err != nil {
-						log.Println("error sending message: ", err)
+						l.Log.Println("error sending message: ", err)
 					}
 				}
 			}

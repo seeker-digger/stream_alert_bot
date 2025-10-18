@@ -2,8 +2,8 @@ package db
 
 import (
 	bolt "go.etcd.io/bbolt"
-	"log"
 	"main.go/internal/config"
+	l "main.go/internal/logger"
 	"sync"
 )
 
@@ -15,14 +15,14 @@ type DB struct {
 func Init() DB {
 	db, err := bolt.Open(config.GetDataPath("app.db"), 0660, nil)
 	if err != nil {
-		log.Fatal(err)
+		l.Log.Fatal(err)
 	}
 
 	if err = db.Update(func(tx *bolt.Tx) error {
 		_, err = tx.CreateBucketIfNotExists([]byte("users"))
 		return err
 	}); err != nil {
-		log.Fatal(err)
+		l.Log.Fatal(err)
 	}
 	return DB{db: db}
 }
