@@ -8,4 +8,7 @@ require (
 	gopkg.in/telebot.v4 v4.0.0-beta.5
 )
 
-require golang.org/x/sys v0.29.0 // indirect
+require (
+	github.com/sirupsen/logrus v1.9.3 // indirect
+	golang.org/x/sys v0.29.0 // indirect
+)

@@ -1,14 +1,14 @@
 package config
 
 import (
-	"errors"
 	"github.com/joho/godotenv"
 	"log"
+	l "main.go/internal/logger"
+	"main.go/internal/util"
 	"os"
 	"path/filepath"
+	"strings"
 )
-
-var errNoSuchFile = errors.New("open /etc/alert-bot/.env: no such file or directory")
 
 var envVarSlice = []string{"KICK_CLIENT_ID", "KICK_CLIENT_SECRET", "TELEGRAM_BOT_API"}
 
@@ -20,21 +20,21 @@ const envFileText = "" +
 const environmentFile = "/etc/alert-bot/.env"
 const workingDirectory = "/var/lib/alert-bot"
 
-func InitData() {
+func Init() {
+	l.InitLogger()
+
 	err := godotenv.Load(environmentFile)
 	if err != nil {
-		if errors.Is(err, errNoSuchFile) {
-			file, err := os.Create(environmentFile)
+		if strings.Contains(err.Error(), ".env: no such file or directory") {
+			err = os.MkdirAll(filepath.Dir(environmentFile), 0766)
 			if err != nil {
-				log.Fatal(err)
+				log.Panic(err)
 			}
-			defer file.Close()
-
-			_, err = file.Write([]byte(envFileText))
+			err = os.WriteFile(environmentFile, []byte(envFileText), 0666)
 			if err != nil {
-				log.Fatal(err)
+				log.Panic(err)
 			}
-			log.Fatal("Please fill the .env file on this way: " + environmentFile)
+			log.Println("Please fill the .env file on this way: " + environmentFile)
 		} else {
 			log.Fatal(err)
 		}
@@ -42,7 +42,8 @@ func InitData() {
 	for _, i := range envVarSlice {
 		a := os.Getenv(i)
 		if a == "" {
-			log.Fatal("Please set " + i + " in the .env file on this way: " + environmentFile)
+			l.Log.Error("Please set " + i + " and others else in the .env file on this way: " + environmentFile)
+			util.WaitForSignal()
 		}
 	}
 }

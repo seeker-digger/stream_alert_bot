@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"main.go/internal/config"
+	l "main.go/internal/logger"
 	"net/http"
 	"net/url"
 	"os"
@@ -44,6 +44,7 @@ func GetAuthToken() (ApiKick, error) {
 
 	var authToken authToken
 
+	err := os.MkdirAll(config.GetDataPath(""), 766)
 	fl, err := os.OpenFile(config.GetDataPath("token.json"), os.O_RDWR|os.O_CREATE, 0600)
 	if err != nil {
 		return nil, fmt.Errorf("error opening token.json: %v", err)
@@ -59,7 +60,6 @@ func GetAuthToken() (ApiKick, error) {
 	if authToken.ChangeIn <= time.Now().Unix() {
 		err = errors.New("token is expired")
 	} else if err == nil {
-		log.Println("Kick auth token successfully read")
 		return &authToken, nil
 	} else {
 		fmt.Println("Token is expired")
@@ -109,7 +109,7 @@ func GetAuthToken() (ApiKick, error) {
 		return nil, fmt.Errorf("error writing token.json: %v", err)
 	}
 
-	log.Print("Kick api successfully initialized")
+	l.Log.Print("Kick api successfully initialized")
 	return authToken, nil
 }
 

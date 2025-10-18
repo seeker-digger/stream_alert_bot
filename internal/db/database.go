@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	bolt "go.etcd.io/bbolt"
-	"log"
+	l "main.go/internal/logger"
 	"slices"
 	"strconv"
 )
@@ -27,7 +27,7 @@ func (db *DB) GetUser(id int64) (User, error) {
 			return ErrKeyNotExist
 		}
 		if err := json.Unmarshal(v, &user); err != nil {
-			log.Panicf("unsuccessful marshalization: %v", err)
+			l.Log.Panicf("unsuccessful marshalization: %v", err)
 		}
 		return nil
 	})
@@ -36,7 +36,7 @@ func (db *DB) GetUser(id int64) (User, error) {
 	} else if err != nil {
 		return User{}, errors.New("DB view error: " + err.Error())
 	}
-	log.Println("Received user: " + strconv.FormatInt(id, 10))
+	l.Log.Debugln("Received user: " + strconv.FormatInt(id, 10))
 	return user, nil
 }
 
@@ -55,7 +55,7 @@ func (db *DB) SetUser(id int64, user User) error {
 	if err != nil {
 		return errors.New("DB set error: " + err.Error())
 	}
-	log.Println("New update user: " + strconv.FormatInt(id, 10))
+	l.Log.Debugln("New update user: " + strconv.FormatInt(id, 10))
 	return nil
 }
 
@@ -69,7 +69,7 @@ func (db *DB) RemoveUser(id int64) error {
 	if err != nil {
 		return errors.New("DB delete error: " + err.Error())
 	}
-	log.Println("Removed user: " + strconv.FormatInt(id, 10))
+	l.Log.Debugln("Removed user: " + strconv.FormatInt(id, 10))
 	return nil
 }
 

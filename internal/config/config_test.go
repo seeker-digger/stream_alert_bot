@@ -12,7 +12,7 @@ func TestGetDataPath(t *testing.T) {
 }
 
 func TestInitData(t *testing.T) {
-	InitData()
+	Init()
 	a := os.Getenv("KICK_CLIENT_ID")
 	fmt.Println(a)
 }
