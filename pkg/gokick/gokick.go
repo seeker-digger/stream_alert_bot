@@ -5,14 +5,15 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"main.go/internal/config"
-	l "main.go/internal/logger"
 	"net/http"
 	"net/url"
 	"os"
 	"path"
 	"strings"
 	"time"
+
+	"main.go/internal/config"
+	l "main.go/internal/logger"
 )
 
 const channelapiurl = "https://api.kick.com/public/v1/channels"
@@ -32,19 +33,14 @@ type authToken struct {
 	ChangeIn    int64
 }
 
-type appSecrets struct {
-	GrantType    string `json:"grant_type"`
-	ClientID     string `json:"client_id"`
-	ClientSecret string `json:"client_secret"`
-}
-
 func GetAuthToken() (ApiKick, error) {
 	var clientid = os.Getenv("KICK_CLIENT_ID")
 	var clientsecret = os.Getenv("KICK_CLIENT_SECRET")
 
 	var authToken authToken
 
-	err := os.MkdirAll(config.GetDataPath(""), 766)
+	// TODO: CUT TO INTERNAL PACKAGE
+	err := os.MkdirAll(config.GetDataPath(""), 0766)
 	fl, err := os.OpenFile(config.GetDataPath("token.json"), os.O_RDWR|os.O_CREATE, 0600)
 	if err != nil {
 		return nil, fmt.Errorf("error opening token.json: %v", err)
@@ -64,6 +60,7 @@ func GetAuthToken() (ApiKick, error) {
 	} else {
 		fmt.Println("Token is expired")
 	}
+	// TODO: CUT TO INTERNAL PACKAGE
 
 	data := url.Values{}
 	data.Set("client_id", clientid)
@@ -94,7 +91,7 @@ func GetAuthToken() (ApiKick, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal Response: %w", err)
 	}
-	authToken.ChangeIn = time.Now().Unix() + int64(authToken.ExpiresIn)*95/100 // After 57 days
+	authToken.ChangeIn = time.Now().Unix() + int64(authToken.ExpiresIn)*95/100 //* After 57 days
 
 	fl, err = os.Create(config.GetDataPath("token.json"))
 	if err != nil {

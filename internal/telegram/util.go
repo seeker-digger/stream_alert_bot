@@ -2,6 +2,17 @@ package telegram
 
 import "strings"
 
+// removeAll removes all occurrences of value from the provided slice and returns
+// a slice containing the remaining elements. The operation is performed in-place
+// (it reuses the input slice's underlying array when possible) and preserves the
+// relative order of the remaining elements.
+//
+// The type parameter T must be comparable; equality is determined using the ==
+// operator. The function runs in O(n) time and uses O(1) additional memory.
+//
+// If the input slice is nil or contains no matching elements, the original
+// slice is returned (possibly sharing the same underlying array). If all
+// elements match value, an empty slice with length 0 is returned.
 func removeAll[T comparable](slice []T, value T) []T {
 	result := slice[:0]
 	for _, v := range slice {
@@ -28,6 +39,7 @@ func chunkSlice[T any](slice []T, size int) [][]T {
 	return chunks
 }
 
+// ! CHANGE AND REMOVE THIS SHIT LATER !
 func scheduleUpd() {
 	go func() {
 		needUpdate <- true

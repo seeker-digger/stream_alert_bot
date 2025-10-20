@@ -2,9 +2,10 @@ package util
 
 import (
 	"fmt"
-	l2 "main.go/internal/logger"
 	"strings"
 	"testing"
+
+	l2 "main.go/internal/logger"
 )
 
 func TestGetNLastLines(t *testing.T) {

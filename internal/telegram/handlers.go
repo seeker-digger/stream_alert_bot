@@ -3,20 +3,14 @@ package telegram
 import (
 	"errors"
 	"fmt"
-	"gopkg.in/telebot.v4"
-	db2 "main.go/internal/db"
-	"main.go/pkg/gokick"
 	"slices"
 	"strconv"
 	"strings"
-	"time"
-)
 
-type notification struct {
-	name     string
-	title    string
-	startsIn time.Time
-}
+	"gopkg.in/telebot.v4"
+	db2 "main.go/internal/db"
+	"main.go/pkg/gokick"
+)
 
 func onStart(b *db2.DB) telebot.HandlerFunc {
 	return func(c telebot.Context) error {
