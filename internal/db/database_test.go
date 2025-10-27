@@ -42,20 +42,24 @@ func TestDB_GetAllIdsByValueKick(t *testing.T) {
 	db := Init()
 	defer db.db.Close()
 
-	u, err := db.GetUser(1234)
+	u := User{
+		Kick: []string{"chan", "anotherchannel"},
+	}
+
+	err := db.SetUser(1234, u)
+	if err != nil {
+		t.Error(err)
+	}
+	u, err = db.GetUser(1234)
 	if err != nil {
 		t.Error(err)
 	}
 	u.Kick = append(u.Kick, "jesusavgn")
-	err = db.SetUser(1234, u)
+	_, err = db.GetAllIdsByValueKick("jesusavgn")
 	if err != nil {
 		t.Error(err)
 	}
-	ids, err := db.GetAllIdsByValueKick("jesusavgn")
-	if err != nil {
-		t.Error(err)
-	}
-	t.Log(ids)
+
 }
 
 func TestDB_GetCountOfUsers(t *testing.T) {

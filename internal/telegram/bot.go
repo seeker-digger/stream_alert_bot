@@ -2,21 +2,22 @@ package telegram
 
 import (
 	"context"
-	"gopkg.in/telebot.v4"
-	"main.go/internal/db"
-	l "main.go/internal/logger"
-	"main.go/pkg/gokick"
+	"main.go/internal/api"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"gopkg.in/telebot.v4"
+	"main.go/internal/db"
+	l "main.go/internal/logger"
 )
 
 type Bot struct {
 	bot telebot.Bot
 }
 
-func Create(api gokick.ApiKick, db *db.DB) {
+func Create(api api.Tokens, db *db.DB) {
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
 
@@ -29,9 +30,11 @@ func Create(api gokick.ApiKick, db *db.DB) {
 	if err != nil {
 		l.Log.Fatal(err)
 	}
+	//* CHANGE! So ugly :(
 	loop := initLoop()
 	loop.startAPILoop(db, api)
 	loop.startMailingLoop(db, b)
+	////////////////////////
 	b.Handle("/start", onStart(db))
 	b.Handle("/add", onAdd(db, api))
 	b.Handle("/remove", onRemove(db, api))

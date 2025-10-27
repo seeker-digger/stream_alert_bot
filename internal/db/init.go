@@ -13,7 +13,7 @@ type DB struct {
 }
 
 func Init() DB {
-	db, err := bolt.Open(config.GetDataPath("app.db"), 0660, nil)
+	db, err := bolt.Open(config.GetDataPath("app.db"), 0666, nil)
 	if err != nil {
 		l.Log.Fatal(err)
 	}

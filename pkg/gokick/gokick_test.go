@@ -5,9 +5,12 @@ import (
 	"errors"
 	"fmt"
 	"testing"
+
+	"main.go/internal/config"
 )
 
 func TestGetAuthToken(t *testing.T) {
+	config.Init()
 	a, err := GetAuthToken()
 	if err != nil {
 		t.Error(err)
@@ -22,6 +25,10 @@ func TestAuthToken_GetChannel(t *testing.T) {
 	}
 	var lst = []string{"ppfdgbdfgdf"}
 	c, err := a.GetChannel(lst)
+	if err != nil {
+		t.Error(err)
+	}
+
 	jsonD, err := json.MarshalIndent(c, " ", "")
 	if err != nil {
 		t.Error(err)
@@ -35,7 +42,7 @@ func TestAuthToken_GetSlugByURL(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	url := "werbf"
+	url := "https://kick.com/ppfdgbdfgdf"
 	s, err := a.GetSlugByURL(url)
 	if errors.Is(err, ErrInvalidURL) {
 		t.Error("Invalid URL")

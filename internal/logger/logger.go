@@ -7,8 +7,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const LogFile = "/var/log/stream-alert-bot/stream-alert-bot.log"
-const logDir = "/var/log/stream-alert-bot"
+var (
+	LogFile = os.Getenv("HOME") + "/stream-alert-bot/logs/stream-alert-bot.log"
+	logDir  = os.Getenv("HOME") + "/stream-alert-bot/logs"
+)
 
 var Log = logrus.New()
 

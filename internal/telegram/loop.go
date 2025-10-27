@@ -3,11 +3,13 @@ package telegram
 import (
 	"errors"
 	"fmt"
+	"main.go/internal/api"
+	"time"
+
 	"gopkg.in/telebot.v4"
 	"main.go/internal/db"
 	l "main.go/internal/logger"
 	"main.go/pkg/gokick"
-	"time"
 )
 
 var needUpdate chan bool
@@ -27,7 +29,8 @@ func initLoop() Loop {
 	return Loop{targets: targets, onlSlug: onlSlug, toggle: false}
 }
 
-func (loop *Loop) startAPILoop(b *db.DB, kick gokick.ApiKick) {
+// UGLY!!
+func (loop *Loop) startAPILoop(b *db.DB, tokens api.Tokens) {
 	loop.toggle = true
 	go func() {
 		ticker := time.NewTicker(delay)
@@ -45,7 +48,7 @@ func (loop *Loop) startAPILoop(b *db.DB, kick gokick.ApiKick) {
 			case <-ticker.C:
 				chunks := chunkSlice(slugs, 50)
 				for _, s := range chunks {
-					r, err := kick.GetChannel(s)
+					r, err := tokens.Kick.GetChannel(s)
 					if err != nil {
 						l.Log.Println("error getting channels: ", err.Error())
 					}
@@ -64,9 +67,10 @@ func (loop *Loop) startAPILoop(b *db.DB, kick gokick.ApiKick) {
 }
 
 func (loop *Loop) pauseAPILoop() {
-	loop.toggle = false
+	loop.toggle = false // <-- THIS IS SHIT!
 }
 
+// VERY UGLY!!
 func (loop *Loop) startMailingLoop(b *db.DB, bot *telebot.Bot) {
 	go func() {
 		for {

@@ -3,6 +3,7 @@ package telegram
 import (
 	"errors"
 	"fmt"
+	"main.go/internal/api"
 	"slices"
 	"strconv"
 	"strings"
@@ -30,7 +31,7 @@ func onStart(b *db2.DB) telebot.HandlerFunc {
 	}
 }
 
-func onAdd(b *db2.DB, kick gokick.ApiKick) telebot.HandlerFunc {
+func onAdd(b *db2.DB, tokens api.Tokens) telebot.HandlerFunc {
 	return func(c telebot.Context) error {
 		tags := c.Args()
 		if len(tags) == 0 {
@@ -47,7 +48,7 @@ func onAdd(b *db2.DB, kick gokick.ApiKick) telebot.HandlerFunc {
 			return nil
 		}
 
-		slug, err := kick.GetSlugByURL(tags[0])
+		slug, err := tokens.Kick.GetSlugByURL(tags[0])
 		if errors.Is(err, gokick.ErrInvalidURL) {
 			err = c.Send("*⚠️ Неверная ссылка:* `\\/add kick.com\\/username`", &telebot.SendOptions{ParseMode: telebot.ModeMarkdownV2})
 			if err != nil {
@@ -90,7 +91,7 @@ func onAdd(b *db2.DB, kick gokick.ApiKick) telebot.HandlerFunc {
 	}
 }
 
-func onRemove(b *db2.DB, kick gokick.ApiKick) telebot.HandlerFunc {
+func onRemove(b *db2.DB, tokens api.Tokens) telebot.HandlerFunc {
 	return func(c telebot.Context) error {
 		tags := c.Args()
 		if len(tags) == 0 {
@@ -109,7 +110,7 @@ func onRemove(b *db2.DB, kick gokick.ApiKick) telebot.HandlerFunc {
 		var slug string
 		var err error
 		if strings.Contains(tags[0], "/") {
-			slug, err = kick.GetSlugByURL(tags[0])
+			slug, err = tokens.Kick.GetSlugByURL(tags[0])
 			if errors.Is(err, gokick.ErrInvalidURL) {
 				err = c.Send("*⚠️ Некорректная ссылка*", &telebot.SendOptions{ParseMode: telebot.ModeMarkdownV2})
 				if err != nil {
@@ -163,7 +164,7 @@ func onList(b *db2.DB) telebot.HandlerFunc {
 		if err != nil {
 			return err
 		}
-		text := fmt.Sprintf("*🎯Отслеживаются:*")
+		text := "*🎯Отслеживаются:*"
 		for j, i := range u.Kick {
 			if j == len(u.Kick)-1 {
 				text += fmt.Sprintf(" [%s](kick.com/%s)", escapeMarkdownV2Text(i), i)

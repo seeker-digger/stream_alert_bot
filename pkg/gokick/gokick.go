@@ -11,9 +11,6 @@ import (
 	"path"
 	"strings"
 	"time"
-
-	"main.go/internal/config"
-	l "main.go/internal/logger"
 )
 
 const channelapiurl = "https://api.kick.com/public/v1/channels"
@@ -21,46 +18,15 @@ const channelapiurl = "https://api.kick.com/public/v1/channels"
 var ErrUserDoesNotExist = errors.New("user does not exist")
 var ErrInvalidURL = errors.New("invalid URL")
 
-type ApiKick interface {
-	GetChannel(slug []string) (Response, error)
-	GetSlugByURL(slug string) (string, error)
-}
-
-type authToken struct {
+type Token struct {
 	AccessToken string `json:"access_token"`
 	TokenType   string `json:"token_type"`
-	ExpiresIn   int    `json:"expires_in"`
-	ChangeIn    int64
+	ExpiresAt   int64  `json:"expires_in"`
 }
 
-func GetAuthToken() (ApiKick, error) {
+func GetAuthToken() (Token, error) {
 	var clientid = os.Getenv("KICK_CLIENT_ID")
 	var clientsecret = os.Getenv("KICK_CLIENT_SECRET")
-
-	var authToken authToken
-
-	// TODO: CUT TO INTERNAL PACKAGE
-	err := os.MkdirAll(config.GetDataPath(""), 0766)
-	fl, err := os.OpenFile(config.GetDataPath("token.json"), os.O_RDWR|os.O_CREATE, 0600)
-	if err != nil {
-		return nil, fmt.Errorf("error opening token.json: %v", err)
-	}
-	defer fl.Close()
-
-	bytejson, err := io.ReadAll(fl)
-	if err != nil {
-		return nil, fmt.Errorf("error reading token.json: %v", err)
-	}
-
-	err = json.Unmarshal(bytejson, &authToken)
-	if authToken.ChangeIn <= time.Now().Unix() {
-		err = errors.New("token is expired")
-	} else if err == nil {
-		return &authToken, nil
-	} else {
-		fmt.Println("Token is expired")
-	}
-	// TODO: CUT TO INTERNAL PACKAGE
 
 	data := url.Values{}
 	data.Set("client_id", clientid)
@@ -73,41 +39,28 @@ func GetAuthToken() (ApiKick, error) {
 		strings.NewReader(data.Encode()),
 	)
 	if err != nil {
-		return nil, fmt.Errorf("error making POST request: %w", err)
+		return Token{}, fmt.Errorf("error making POST request: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
-		return nil, fmt.Errorf("kick API returned status %d: %s", resp.StatusCode, string(body))
+		return Token{}, fmt.Errorf("kick API returned status %d: %s", resp.StatusCode, string(body))
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read Response body: %w", err)
+		return Token{}, fmt.Errorf("failed to read Response body: %w", err)
 	}
 
-	err = json.Unmarshal(body, &authToken)
+	var token Token
+	err = json.Unmarshal(body, &token)
 	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal Response: %w", err)
+		return Token{}, fmt.Errorf("failed to unmarshal Response: %w", err)
 	}
-	authToken.ChangeIn = time.Now().Unix() + int64(authToken.ExpiresIn)*95/100 //* After 57 days
+	token.ExpiresAt = token.ExpiresAt + time.Now().Unix()
 
-	fl, err = os.Create(config.GetDataPath("token.json"))
-	if err != nil {
-		return nil, fmt.Errorf("error creating token.json: %v", err)
-	}
-	defer fl.Close()
-
-	aTF, err := json.MarshalIndent(authToken, "", "  ")
-
-	_, err = fl.Write(aTF)
-	if err != nil {
-		return nil, fmt.Errorf("error writing token.json: %v", err)
-	}
-
-	l.Log.Print("Kick api successfully initialized")
-	return authToken, nil
+	return token, nil
 }
 
 type Response struct {
@@ -143,7 +96,7 @@ type Stream struct {
 }
 
 // GetChannel getting all channel's info
-func (a authToken) GetChannel(slug []string) (Response, error) {
+func (a Token) GetChannel(slug []string) (Response, error) {
 	var r Response
 	queryParams := url.Values{}
 	for _, i := range slug {
@@ -183,7 +136,7 @@ func (a authToken) GetChannel(slug []string) (Response, error) {
 	return r, nil
 }
 
-func (a authToken) GetSlugByURL(rawurl string) (string, error) {
+func (a Token) GetSlugByURL(rawurl string) (string, error) {
 	if !strings.HasPrefix(rawurl, "http://") && !strings.HasPrefix(rawurl, "https://") {
 		rawurl = "http://" + rawurl
 	}
