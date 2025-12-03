@@ -13,6 +13,7 @@ bash <(curl -fsSL https://raw.githubusercontent.com/seeker-digger/stream_alert_b
 ---
 
 ### TODO: (from top to bottom by priority)
+- [ ] Add the admin panel
 - [x] ~~**Isolate the verification and creation of an authorization token in token.json to internal package**~~
 - [ ] Add the automatic app update feature
 - [ ] Add twitch and youtube API
