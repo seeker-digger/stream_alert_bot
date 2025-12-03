@@ -8,6 +8,8 @@ bash <(curl -fsSL https://raw.githubusercontent.com/seeker-digger/stream_alert_b
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/seeker-digger/stream_alert_bot/master/update.sh)
 ```
+**For forced updates (even if the latest version is already installed)**
+
 ---
 
 ### TODO: (from top to bottom by priority)
