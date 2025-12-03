@@ -2,6 +2,7 @@
 
 red='\033[0;31m'
 green='\033[0;32m'
+yellow='\033[0;33m'
 plain='\033[0m'
 
 # --- Root check ---
@@ -125,5 +126,25 @@ update_app() {
     echo -e "${green}Stream Alert Bot updated to version ${latest_version}!${plain}"
 }
 
+migration_assist() {
+    OLDENVFILEv003="/etc/alert-bot/.env"
+    OLDDBFILEv003="/var/lib/alert-bot/app.db"
+
+    mkdir "${HOME}/stream-alert-bot/"
+
+    if [[ -f "$OLDENVFILEv003" ]]; then
+        echo -e "${yellow}An old .env file has been found. Moving to ${HOME}/stream-alert-bot${plain}"
+        cp $OLDENVFILEv003 "${HOME}/stream-alert-bot/"
+        rm -rf "${OLDENVFILEv003}/.."
+    fi
+
+    if [[ -f "$OLDDBFILEv003" ]]; then
+        echo -e "${yellow}An old db file has been found. Moving to ${HOME}/stream-alert-bot${plain}"
+        cp $OLDDBFILEv003 "${HOME}/stream-alert-bot/"
+        rm -rf "${OLDDBFILEv003}/.."
+    fi
+}
+
 install_base
+migration_assist
 update_app
