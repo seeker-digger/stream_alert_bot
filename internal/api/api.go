@@ -39,7 +39,7 @@ func GetTokens() (Tokens, error) {
 
 	err = json.Unmarshal(bytejson, &tokens)
 	if err != nil {
-		l.Log.Warn("Error unmarshaling token.json: " + err.Error())
+		l.Log.Warn("Error unmarshaling token.json: " + err.Error() + ". Trying get new token...")
 	} else {
 		now := time.Now().Unix()
 		exp := int64(tokens.Kick.ExpiresAt)

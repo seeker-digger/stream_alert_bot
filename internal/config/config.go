@@ -25,8 +25,6 @@ func Init() {
 	}
 	environmentFile := path.Join(home, "/stream-alert-bot/.env")
 
-	l.InitLogger()
-
 	err = godotenv.Load(environmentFile)
 	if err != nil {
 		if strings.Contains(err.Error(), ".env: no such file or directory") {
@@ -38,7 +36,7 @@ func Init() {
 			if err != nil {
 				log.Panic(err)
 			}
-			log.Println("Please fill the .env file on this way: " + environmentFile)
+			l.Log.Error("Please fill the .env file on this way: " + environmentFile)
 		} else {
 			log.Fatal(err)
 		}

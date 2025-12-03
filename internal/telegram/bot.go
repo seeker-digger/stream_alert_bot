@@ -40,6 +40,7 @@ func Create(api api.Tokens, db *db.DB) {
 	b.Handle("/remove", onRemove(db, api))
 	b.Handle("/list", onList(db))
 
+	l.Log.Println("Bot started!")
 	go func() {
 		b.Start()
 	}()

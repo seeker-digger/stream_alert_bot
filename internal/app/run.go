@@ -17,8 +17,6 @@ func Run() error {
 
 	config.Init()
 
-	l.Log.Println("Initializing bot...")
-
 	tokens, err := api.GetTokens()
 	if err != nil {
 		l.Log.Panic(err)
