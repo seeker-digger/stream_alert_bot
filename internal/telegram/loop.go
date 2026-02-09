@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"main.go/internal/api"
+	"strings"
 	"time"
 
 	"gopkg.in/telebot.v4"
@@ -49,7 +50,9 @@ func (loop *Loop) startAPILoop(b *db.DB, tokens api.Tokens) {
 				chunks := chunkSlice(slugs, 50)
 				for _, s := range chunks {
 					r, err := tokens.Kick.GetChannel(s)
-					if err != nil {
+					if strings.Contains(err.Error(), "kick API returned status %d") {
+						tokens.Kick, err = gokick.GetAuthToken() // DUMB
+					} else if err != nil {
 						l.Log.Println("error getting channels: ", err.Error())
 					}
 					for _, i := range r.Data {

@@ -52,8 +52,8 @@ func escapeMarkdownV2Text(s string) string {
 		"*", "\\*",
 		"[", "\\[",
 		"]", "\\]",
-  "(", "\\(",
-  ")", "\\)",
+		"(", "\\(",
+		")", "\\)",
 		"~", "\\~",
 		"`", "\\`",
 		">", "\\>",
@@ -64,7 +64,7 @@ func escapeMarkdownV2Text(s string) string {
 		"|", "\\|",
 		"{", "\\{",
 		"}", "\\}",
-  ".", "\\.",
+		".", "\\.",
 		"!", "\\!",
 	)
 	return replacer.Replace(s)
